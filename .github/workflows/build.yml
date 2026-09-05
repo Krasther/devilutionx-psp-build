@@ -1,0 +1,56 @@
+name: Build DevilutionX PSP
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Install host dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake curl g++ git lcov libgtest-dev libgmock-dev libfmt-dev libsdl2-dev libsodium-dev libpng-dev libbz2-dev wget gettext
+
+      - name: Setup PSP toolchain
+        uses: krystalgamer/setup-psptoolchain@latest
+
+      - name: Fetch DevilutionX-PSP
+        run: |
+          git clone --depth 1 --branch psp https://github.com/dports/DevilutionX-PSP.git source
+
+      - name: Configure
+        run: |
+          psp-cmake -S source -B build \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DBUILD_PRX=1 \
+            -DENC_PRX=1
+
+      - name: Build
+        run: |
+          cmake --build build -j "$(nproc)"
+
+      - name: Collect PSP package
+        run: |
+          mkdir -p package/DevilutionX
+
+          find build -type f \( -name 'EBOOT.PBP' -o -name '*.prx' -o -name '*.mpq' \) \
+            -print -exec cp -v {} package/DevilutionX/ \;
+
+          find source -maxdepth 3 -type f -name 'devilutionx.mpq' \
+            -print -exec cp -v {} package/DevilutionX/ \; || true
+
+          printf 'Coloque seu DIABDAT.MPQ nesta pasta antes de copiar para PSP/GAME/DevilutionX/\n' \
+            > package/DevilutionX/COLOQUE_O_DIABDAT_AQUI.txt
+
+          find package -maxdepth 3 -type f -printf '%p\n'
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: DevilutionX-PSP
+          path: package/
+          if-no-files-found: error
