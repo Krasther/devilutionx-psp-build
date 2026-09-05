@@ -37,6 +37,11 @@ cp -a build/assets package/DevilutionX/assets
 find build -maxdepth 2 -type f -name 'devilutionx.mpq' \
   -print -exec cp -v {} package/DevilutionX/ \; || true
 
+# On PSP, SDL_GetPrefPath resolves to a nested diasurgical/devilution directory
+# under the game folder. This fork already falls back to the current directory
+# when a writable diablo.ini exists, which is a safer layout for ms0:/PSP/GAME.
+: > package/DevilutionX/diablo.ini
+
 printf 'Coloque seu DIABDAT.MPQ nesta pasta antes de copiar para PSP/GAME/DevilutionX/\n' \
   > package/DevilutionX/COLOQUE_O_DIABDAT_AQUI.txt
 
@@ -45,5 +50,6 @@ find package -maxdepth 5 -type f -print
 
 test -f package/DevilutionX/EBOOT.PBP
 test -f package/DevilutionX/devilutionx.prx
+test -f package/DevilutionX/diablo.ini
 test -d package/DevilutionX/assets
 test -n "$(find package/DevilutionX/assets -type f -print -quit)"
