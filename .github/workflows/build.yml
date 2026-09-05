@@ -22,12 +22,13 @@ jobs:
         run: |
           git clone --depth 1 --branch psp https://github.com/dports/DevilutionX-PSP.git source
 
-      - name: Configure
+           - name: Configure
         run: |
           psp-cmake -S source -B build \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DBUILD_PRX=1 \
-            -DENC_PRX=1
+            -DENC_PRX=1 \
+            -DDEVILUTIONX_SYSTEM_SDL2=OFF
 
       - name: Build
         run: |
