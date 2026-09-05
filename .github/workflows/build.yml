@@ -45,9 +45,9 @@ jobs:
           test -f "$PSPDEV/psp/lib/libSDL2main.a"
           test -d "$PSPDEV/psp/include/SDL2"
 
-          mkdir -p "$PSPDEV/psp/lib/cmake/SDL2"
+          mkdir -p "$GITHUB_WORKSPACE/psp-cmake/SDL2"
 
-          cat > "$PSPDEV/psp/lib/cmake/SDL2/SDL2Config.cmake" <<'EOF'
+          cat > "$GITHUB_WORKSPACE/psp-cmake/SDL2/SDL2Config.cmake" <<'EOF'
           set(SDL2_FOUND TRUE)
 
           set(SDL2_INCLUDE_DIRS "$ENV{PSPDEV}/psp/include/SDL2")
@@ -71,7 +71,7 @@ jobs:
           EOF
 
           echo "=== SDL2Config.cmake ==="
-          cat "$PSPDEV/psp/lib/cmake/SDL2/SDL2Config.cmake"
+          cat "$GITHUB_WORKSPACE/psp-cmake/SDL2/SDL2Config.cmake"
 
       - name: Configure
         run: |
@@ -79,7 +79,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DBUILD_PRX=1 \
             -DENC_PRX=1 \
-            -DSDL2_DIR="$PSPDEV/psp/lib/cmake/SDL2"
+            -DSDL2_DIR="$GITHUB_WORKSPACE/psp-cmake/SDL2"
 
       - name: Build
         run: |
