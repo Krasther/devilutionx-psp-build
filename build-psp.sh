@@ -19,9 +19,14 @@ sudo apt-get install -y \
   wget \
   gettext
 
+# setup-psptoolchain provides psp-pacman, but the PSP SDL2 package itself
+# is not guaranteed to be installed by the action. The host Ubuntu SDL2
+# package above cannot satisfy a PSP cross-build.
+sudo psp-pacman -Sy --noconfirm sdl2
+
 rm -rf source build package
 
-git clone --depth 1 --branch psp https://github.com/dports/DevilutionX-PSP.git source
+git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
 
 # Follow the PSP port's own GitHub Actions build procedure.
 # setup-psptoolchain (from build.yml) provides psp-cmake and the PSP SDK.
