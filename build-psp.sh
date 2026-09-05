@@ -27,13 +27,16 @@ git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
 # setup-psptoolchain (from build.yml) provides psp-cmake and the PSP SDK.
 # Explicitly set PSP because the setup action's toolchain snapshot does not
 # propagate the CMake platform variable expected by this 2023 PSP port.
-# Build the SDL2 revision pinned by DevilutionX itself.
+# Build the pinned SDL2, zlib and bzip2 revisions from DevilutionX itself so
+# the cross-build does not depend on missing PSP system packages.
 psp-cmake -S source -B build \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DPSP=ON \
   -DBUILD_PRX=1 \
   -DENC_PRX=1 \
-  -DDEVILUTIONX_SYSTEM_SDL2=OFF
+  -DDEVILUTIONX_SYSTEM_SDL2=OFF \
+  -DDEVILUTIONX_SYSTEM_ZLIB=OFF \
+  -DDEVILUTIONX_SYSTEM_BZIP2=OFF
 
 cmake --build build -j "$(nproc)"
 
