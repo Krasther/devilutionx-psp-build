@@ -37,12 +37,49 @@ jobs:
         run: |
           git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
 
+      - name: Create PSP SDL2 CMake config
+        run: |
+          echo "PSPDEV=$PSPDEV"
+
+          test -f "$PSPDEV/psp/lib/libSDL2.a"
+          test -f "$PSPDEV/psp/lib/libSDL2main.a"
+          test -d "$PSPDEV/psp/include/SDL2"
+
+          mkdir -p "$PSPDEV/psp/lib/cmake/SDL2"
+
+          cat > "$PSPDEV/psp/lib/cmake/SDL2/SDL2Config.cmake" <<'EOF'
+          set(SDL2_FOUND TRUE)
+
+          set(SDL2_INCLUDE_DIRS "$ENV{PSPDEV}/psp/include/SDL2")
+          set(SDL2_LIBRARIES "$ENV{PSPDEV}/psp/lib/libSDL2.a")
+
+          if(NOT TARGET SDL2::SDL2)
+            add_library(SDL2::SDL2 STATIC IMPORTED)
+            set_target_properties(SDL2::SDL2 PROPERTIES
+              IMPORTED_LOCATION "$ENV{PSPDEV}/psp/lib/libSDL2.a"
+              INTERFACE_INCLUDE_DIRECTORIES "$ENV{PSPDEV}/psp/include/SDL2"
+            )
+          endif()
+
+          if(NOT TARGET SDL2::SDL2main)
+            add_library(SDL2::SDL2main STATIC IMPORTED)
+            set_target_properties(SDL2::SDL2main PROPERTIES
+              IMPORTED_LOCATION "$ENV{PSPDEV}/psp/lib/libSDL2main.a"
+              INTERFACE_INCLUDE_DIRECTORIES "$ENV{PSPDEV}/psp/include/SDL2"
+            )
+          endif()
+          EOF
+
+          echo "=== SDL2Config.cmake ==="
+          cat "$PSPDEV/psp/lib/cmake/SDL2/SDL2Config.cmake"
+
       - name: Configure
         run: |
           psp-cmake -S source -B build \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DBUILD_PRX=1 \
-            -DENC_PRX=1
+            -DENC_PRX=1 \
+            -DSDL2_DIR="$PSPDEV/psp/lib/cmake/SDL2"
 
       - name: Build
         run: |
