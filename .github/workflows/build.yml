@@ -18,7 +18,15 @@ jobs:
         uses: krystalgamer/setup-psptoolchain@latest
 
       - name: Build DevilutionX PSP
-        run: bash build-psp.sh
+        run: bash build-psp.sh 2>&1 | tee build.log
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DevilutionX-PSP-build-log
+          path: build.log
+          if-no-files-found: warn
 
       - name: Upload package
         uses: actions/upload-artifact@v4
