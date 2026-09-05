@@ -5,15 +5,17 @@ set -x
 command -v psp-gcc
 command -v psp-cmake
 
-# devilutionx.mpq contains the engine's UI/font/runtime assets. The PSP fork's
-# installation docs require it, but CMake only builds it when host smpq exists.
-apt-get update
-apt-get install -y --no-install-recommends smpq
-command -v smpq
-
 rm -rf source build package
 
 git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
+
+# The official PSPDEV runtime image is Alpine and intentionally minimal.
+# Install only the host build dependencies needed by DevilutionX's own SMPQ
+# helper, then build SMPQ so CMake can generate the required devilutionx.mpq.
+apk add --no-cache build-base curl zlib-dev bzip2-dev
+sed -i 's/^sudo cmake/cmake/' source/tools/build_and_install_smpq.sh
+sh source/tools/build_and_install_smpq.sh
+command -v smpq
 
 # Build with the PSP port's own configuration inside the official PSPDEV image.
 # Keep PSPDEV's packaged libraries except for fmt: the current PSPDEV image ships
