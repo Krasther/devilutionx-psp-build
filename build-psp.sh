@@ -9,12 +9,14 @@ rm -rf source build package
 
 git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
 
-# Build with the PSP port's own configuration. The workflow runs inside the
-# official PSPDEV image, which contains the PSP SDK and the psp-libraries set.
+# Build with the PSP port's own configuration inside the official PSPDEV image.
+# Keep PSPDEV's packaged libraries except for fmt: the current PSPDEV image ships
+# fmt 12, while this 2023 DevilutionX port expects its pinned fmt 9 API.
 psp-cmake -S source -B build \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DBUILD_PRX=1 \
-  -DENC_PRX=1
+  -DENC_PRX=1 \
+  -DDEVILUTIONX_SYSTEM_LIBFMT=OFF
 
 cmake --build build -j "$(nproc)"
 
