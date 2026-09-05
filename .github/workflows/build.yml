@@ -35,15 +35,14 @@ jobs:
 
       - name: Fetch DevilutionX-PSP
         run: |
-          git clone --depth 1 --branch psp https://github.com/dports/DevilutionX-PSP.git source
+          git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
 
       - name: Configure
         run: |
           psp-cmake -S source -B build \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DBUILD_PRX=1 \
-            -DENC_PRX=1 \
-            -DDEVILUTIONX_SYSTEM_SDL2=OFF
+            -DENC_PRX=1
 
       - name: Build
         run: |
