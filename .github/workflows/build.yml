@@ -44,6 +44,8 @@ jobs:
           test -f "$PSPDEV/psp/lib/libSDL2.a"
           test -f "$PSPDEV/psp/lib/libSDL2main.a"
           test -d "$PSPDEV/psp/include/SDL2"
+          test -f "$PSPDEV/psp/lib/libz.a"
+          test -f "$PSPDEV/psp/include/zlib.h"
 
           mkdir -p "$GITHUB_WORKSPACE/psp-cmake/SDL2"
 
@@ -79,7 +81,10 @@ jobs:
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DBUILD_PRX=1 \
             -DENC_PRX=1 \
-            -DSDL2_DIR="$GITHUB_WORKSPACE/psp-cmake/SDL2"
+            -DSDL2_DIR="$GITHUB_WORKSPACE/psp-cmake/SDL2" \
+            -DZLIB_ROOT="$PSPDEV/psp" \
+            -DZLIB_LIBRARY="$PSPDEV/psp/lib/libz.a" \
+            -DZLIB_INCLUDE_DIR="$PSPDEV/psp/include"
 
       - name: Build
         run: |
