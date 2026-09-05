@@ -9,16 +9,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    container:
+      image: pspdev/pspdev:latest
 
     steps:
       - name: Checkout build repo
         uses: actions/checkout@v4
 
-      - name: Setup PSP toolchain
-        uses: krystalgamer/setup-psptoolchain@latest
-
       - name: Build DevilutionX PSP
-        run: bash build-psp.sh 2>&1 | tee build.log
+        shell: bash
+        run: |
+          set -o pipefail
+          bash build-psp.sh 2>&1 | tee build.log
 
       - name: Upload build log
         if: always()
