@@ -2,47 +2,25 @@
 set -euo pipefail
 set -x
 
-sudo apt-get update
-sudo apt-get install -y \
-  cmake \
-  curl \
-  g++ \
-  git \
-  lcov \
-  libgtest-dev \
-  libgmock-dev \
-  libfmt-dev \
-  libsdl2-dev \
-  libsodium-dev \
-  libpng-dev \
-  libbz2-dev \
-  wget \
-  gettext
+command -v psp-gcc
+command -v psp-cmake
 
 rm -rf source build package
 
 git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
 
-# Follow the PSP port's own GitHub Actions build procedure.
-# setup-psptoolchain (from build.yml) provides psp-cmake and the PSP SDK.
-# Explicitly set PSP because the setup action's toolchain snapshot does not
-# propagate the CMake platform variable expected by this 2023 PSP port.
-# Build the pinned SDL2, zlib and bzip2 revisions from DevilutionX itself so
-# the cross-build does not depend on missing PSP system packages.
+# Build with the PSP port's own configuration. The workflow runs inside the
+# official PSPDEV image, which contains the PSP SDK and the psp-libraries set.
 psp-cmake -S source -B build \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-  -DPSP=ON \
   -DBUILD_PRX=1 \
-  -DENC_PRX=1 \
-  -DDEVILUTIONX_SYSTEM_SDL2=OFF \
-  -DDEVILUTIONX_SYSTEM_ZLIB=OFF \
-  -DDEVILUTIONX_SYSTEM_BZIP2=OFF
+  -DENC_PRX=1
 
 cmake --build build -j "$(nproc)"
 
 mkdir -p package/DevilutionX
 
-# The PSP port generates EBOOT.PBP inside the CMake build tree.
+# Collect the executable and any runtime files produced by the PSP build.
 find build -type f \( -name 'EBOOT.PBP' -o -name '*.prx' -o -name 'devilutionx.mpq' \) \
   -print -exec cp -v {} package/DevilutionX/ \;
 
@@ -56,5 +34,4 @@ printf 'Coloque seu DIABDAT.MPQ nesta pasta antes de copiar para PSP/GAME/Devilu
 echo "=== Conteudo final do pacote ==="
 find package -maxdepth 3 -type f -print
 
-# Fail clearly if the PSP executable was not produced.
 test -f package/DevilutionX/EBOOT.PBP
