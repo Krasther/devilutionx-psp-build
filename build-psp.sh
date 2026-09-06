@@ -17,6 +17,10 @@ git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
 # frame to a native 480x272 PSP output surface before uploading it to the GPU.
 bash patch-psp-video.sh source
 
+# Diagnostic: bypass startup/attract movies so menu and gameplay can be tested
+# independently from the still-problematic PSP Smacker video transition path.
+bash patch-psp-skip-startup-videos.sh source
+
 # Match the PSP fork's own build path. Without host smpq, DevilutionX copies its
 # runtime UI/font/data files into build/assets and loads them directly at runtime.
 # Keep PSPDEV's packaged libraries except for fmt: the current PSPDEV image ships
