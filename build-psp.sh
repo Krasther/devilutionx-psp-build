@@ -17,6 +17,11 @@ git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
 # frame to a native 480x272 PSP output surface before uploading it to the GPU.
 bash patch-psp-video.sh source
 
+# Restore the original movie presentation semantics on top of the fixed PSP
+# output path, and make the hero-name edit field usable in PPSSPP/controller
+# environments without removing the PSP port's generated-name fallback.
+bash patch-psp-movie-and-input.sh source
+
 # Keep the normal Blizzard -> Diablo intro -> title -> main menu flow intact,
 # but add a crash-safe trace file (devilutionx.log) so we can see exactly where
 # the PSP/PPSSPP path repeats or stops.
