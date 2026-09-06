@@ -6,6 +6,7 @@ command -v psp-gcc
 command -v psp-cmake
 command -v awk
 command -v sed
+command -v msgfmt
 
 rm -rf source build package
 
@@ -43,6 +44,13 @@ psp-cmake -S source -B build \
   -DDEVILUTIONX_SYSTEM_LIBFMT=OFF
 
 cmake --build build -j "$(nproc)"
+
+# The PSP loose-assets build does not guarantee that Gettext catalogs are
+# generated. Compile the Brazilian Portuguese catalog from the exact same PSP
+# source tree and place it at the asset root expected by LanguageInitialize().
+mkdir -p build/assets
+msgfmt source/Translations/pt_BR.po -o build/assets/pt_BR.mo
+test -s build/assets/pt_BR.mo
 
 mkdir -p package/DevilutionX
 
@@ -89,3 +97,4 @@ test -f package/DevilutionX/devilutionx.prx
 test -s package/DevilutionX/diablo.ini
 test -d package/DevilutionX/assets
 test -n "$(find package/DevilutionX/assets -type f -print -quit)"
+test -s package/DevilutionX/assets/pt_BR.mo
