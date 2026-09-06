@@ -43,6 +43,11 @@ bash patch-psp-log-path.sh source
 # a hard exit can be pinned to the exact allocation/load step.
 bash patch-psp-transition-trace.sh source
 
+# Persist the latest Cathedral -> Tristram checkpoint and, after a hard PSP exit,
+# show it in an in-game dialog on the next launch. This lets real-hardware tests
+# be diagnosed without connecting the Memory Stick to a PC to retrieve the log.
+python3 patch-psp-checkpoint-ui.py source
+
 # Match the PSP fork's own build path. Without host smpq, DevilutionX copies its
 # runtime UI/font/data files into build/assets and loads them directly at runtime.
 # Keep PSPDEV's packaged libraries except for fmt: the current PSPDEV image ships
@@ -96,7 +101,7 @@ EOF
 printf 'Coloque seu DIABDAT.MPQ nesta pasta antes de copiar para PSP/GAME/DevilutionX/\n' \
   > package/DevilutionX/COLOQUE_O_DIABDAT_AQUI.txt
 
-printf 'Este build gera devilutionx.log na pasta do jogo. Reproduza o problema e envie esse arquivo.\n' \
+printf 'Este build grava o ultimo checkpoint da transicao e o mostra na proxima abertura se o PSP fechar o jogo.\n' \
   > package/DevilutionX/LEIA_LOG_DIAGNOSTICO.txt
 
 echo "=== Conteudo final do pacote ==="
