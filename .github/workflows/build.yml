@@ -16,6 +16,12 @@ jobs:
       - name: Checkout build repo
         uses: actions/checkout@v4
 
+      - name: Install translation tools
+        shell: bash
+        run: |
+          apk add --no-cache gettext
+          command -v msgfmt
+
       - name: Build DevilutionX PSP
         shell: bash
         run: |
