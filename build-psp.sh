@@ -12,9 +12,9 @@ rm -rf source build package
 git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
 
 # The upstream PSP branch renders internally at 480x272, but DevilutionX's
-# vanilla UI is 640x480 and code paths below 480p can crop or crash. Keep the
-# logical UI at 640x480 and split the final PSP GPU upload into two textures so
-# neither exceeds the PSP backend's 512x512 texture limit.
+# vanilla UI assumes a complete 640x480 canvas in several code paths. Keep the
+# game/UI logical framebuffer at 640x480, then explicitly downscale the finished
+# frame to a native 480x272 PSP output surface before uploading it to the GPU.
 bash patch-psp-video.sh source
 
 # Match the PSP fork's own build path. Without host smpq, DevilutionX copies its
@@ -45,9 +45,9 @@ cp -a build/assets package/DevilutionX/assets
 find build -maxdepth 2 -type f -name 'devilutionx.mpq' \
   -print -exec cp -v {} package/DevilutionX/ \; || true
 
-# Keep saves/config beside the EBOOT and force the logical Diablo/UI resolution
-# to 640x480. The patched PSP renderer scales this complete 4:3 frame down to
-# the physical 480x272 display using two GPU-safe texture tiles.
+# Keep saves/config beside the EBOOT and force the complete vanilla UI canvas.
+# The patched PSP presentation path scales this 640x480 frame to a 363x272 4:3
+# image centered inside the physical 480x272 display.
 cat > package/DevilutionX/diablo.ini <<'EOF'
 [Graphics]
 Width=640
