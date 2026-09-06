@@ -165,6 +165,35 @@ END {
 ' "$SVID_CPP" > "$SVID_CPP.tmp"
 mv "$SVID_CPP.tmp" "$SVID_CPP"
 
+# palette.cpp: PSP uses ABGR1555 for the streaming texture. The old UI palette
+# path can leave SDL_Color::a at zero while only updating RGB during gamma/fade
+# operations. On an alpha-bearing 1555 target this can make the normal UI/game
+# framebuffer effectively transparent/black. Movies already force alpha opaque.
+# Make the indexed game/UI palette opaque before SDL converts it to ABGR1555.
+PALETTE_CPP="$ROOT/Source/engine/palette.cpp"
+awk '
+{
+    sub(/\r$/, "", $0)
+
+    if ($0 == "\tassert(Palette);") {
+        print
+        print "#ifdef PSP"
+        print "\tfor (int i = first; i < first + ncolor; ++i)"
+        print "\t\tsystem_palette[i].a = SDL_ALPHA_OPAQUE;"
+        print "#endif"
+        opaque_added++
+        next
+    }
+
+    print
+}
+END {
+    if (opaque_added != 1)
+        exit 45
+}
+' "$PALETTE_CPP" > "$PALETTE_CPP.tmp"
+mv "$PALETTE_CPP.tmp" "$PALETTE_CPP"
+
 # Final sanity checks.
 grep -q 'set(DEFAULT_WIDTH 640)' "$PSP_DEFS"
 grep -q 'set(DEFAULT_HEIGHT 480)' "$PSP_DEFS"
@@ -172,5 +201,6 @@ grep -q 'PspOutputSurface' "$DX_CPP"
 grep -q 'PspScaledWidth = 363' "$DX_CPP"
 grep -q 'ABGR1555, SDL_TEXTUREACCESS_STREAMING, 480, 272' "$DISPLAY_CPP"
 grep -q 'ABGR1555, SDL_TEXTUREACCESS_STREAMING, 480, 272' "$SVID_CPP"
+grep -q 'system_palette\[i\].a = SDL_ALPHA_OPAQUE' "$PALETTE_CPP"
 
-echo "PSP 640x480 -> 480x272 software-output scaling patch applied successfully"
+echo "PSP 640x480 -> 480x272 software-output scaling and opaque-palette patch applied successfully"
