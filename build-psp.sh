@@ -18,6 +18,11 @@ git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
 # frame to a native 480x272 PSP output surface before uploading it to the GPU.
 bash patch-psp-video.sh source
 
+# The 640x480 -> 363x272 reduction makes the tiny bottom-panel labels especially
+# hard to read on the real PSP. Remove those baked labels on PSP and redraw short
+# Portuguese labels directly at native 480x272 resolution after the frame scale.
+bash patch-psp-ui-legibility.sh source
+
 # Restore the original movie presentation semantics on top of the fixed PSP
 # output path, and make the hero-name edit field usable in PPSSPP/controller
 # environments without removing the PSP port's generated-name fallback.
