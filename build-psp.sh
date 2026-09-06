@@ -4,10 +4,17 @@ set -x
 
 command -v psp-gcc
 command -v psp-cmake
+command -v python3
 
 rm -rf source build package
 
 git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
+
+# The upstream PSP branch renders internally at 480x272, but DevilutionX's
+# vanilla UI is 640x480 and code paths below 480p can crop or crash. Keep the
+# logical UI at 640x480 and split the final PSP GPU upload into two textures so
+# neither exceeds the PSP backend's 512x512 texture limit.
+python3 patch-psp-video.py
 
 # Match the PSP fork's own build path. Without host smpq, DevilutionX copies its
 # runtime UI/font/data files into build/assets and loads them directly at runtime.
@@ -28,7 +35,7 @@ find build -type f \( -name 'EBOOT.PBP' -o -name '*.prx' \) \
   -print -exec cp -v {} package/DevilutionX/ \;
 
 # Critical runtime assets. The upstream PSP workflow uploads the whole build
-# directory; these files were missing from our previous minimal package.
+# directory; these files are required when devilutionx.mpq is not generated.
 test -d build/assets
 cp -a build/assets package/DevilutionX/assets
 
@@ -37,10 +44,20 @@ cp -a build/assets package/DevilutionX/assets
 find build -maxdepth 2 -type f -name 'devilutionx.mpq' \
   -print -exec cp -v {} package/DevilutionX/ \; || true
 
-# On PSP, SDL_GetPrefPath resolves to a nested diasurgical/devilution directory
-# under the game folder. This fork already falls back to the current directory
-# when a writable diablo.ini exists, which is a safer layout for ms0:/PSP/GAME.
-: > package/DevilutionX/diablo.ini
+# Keep saves/config beside the EBOOT and force the logical Diablo/UI resolution
+# to 640x480. The patched PSP renderer scales this complete 4:3 frame down to
+# the physical 480x272 display using two GPU-safe texture tiles.
+cat > package/DevilutionX/diablo.ini <<'EOF'
+[Graphics]
+Width=640
+Height=480
+Fullscreen=1
+Fit to Screen=0
+Upscale=1
+Scaling Quality=0
+Integer Scaling=0
+Vertical Sync=0
+EOF
 
 printf 'Coloque seu DIABDAT.MPQ nesta pasta antes de copiar para PSP/GAME/DevilutionX/\n' \
   > package/DevilutionX/COLOQUE_O_DIABDAT_AQUI.txt
@@ -50,6 +67,6 @@ find package -maxdepth 5 -type f -print
 
 test -f package/DevilutionX/EBOOT.PBP
 test -f package/DevilutionX/devilutionx.prx
-test -f package/DevilutionX/diablo.ini
+test -s package/DevilutionX/diablo.ini
 test -d package/DevilutionX/assets
 test -n "$(find package/DevilutionX/assets -type f -print -quit)"
