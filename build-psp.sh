@@ -23,6 +23,11 @@ bash patch-psp-video.sh source
 # Portuguese labels directly at native 480x272 resolution after the frame scale.
 bash patch-psp-ui-legibility.sh source
 
+# The in-game loading screen keeps the main-panel resources alive while it draws
+# the cutscene/progress frame. Suppress our native PSP HUD-label overlay while
+# that loading state is active so PERS/MISS/MAPA/MENU/INV/MAG cannot leak into it.
+bash patch-psp-ui-loading-guard.sh source
+
 # Restore the original movie presentation semantics on top of the fixed PSP
 # output path, and make the hero-name edit field usable in PPSSPP/controller
 # environments without removing the PSP port's generated-name fallback.
