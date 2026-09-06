@@ -22,6 +22,11 @@ bash patch-psp-video.sh source
 # the PSP/PPSSPP path repeats or stops.
 bash patch-psp-runtime-trace.sh source
 
+# PPSSPP/PSP does not guarantee that a relative fopen() resolves beside the
+# EBOOT. Point the diagnostic trace explicitly at the Memory Stick game folder,
+# with the relative path retained only as a fallback.
+bash patch-psp-log-path.sh source
+
 # Match the PSP fork's own build path. Without host smpq, DevilutionX copies its
 # runtime UI/font/data files into build/assets and loads them directly at runtime.
 # Keep PSPDEV's packaged libraries except for fmt: the current PSPDEV image ships
