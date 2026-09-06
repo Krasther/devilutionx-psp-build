@@ -14,30 +14,19 @@ command -v awk >/dev/null
 # -----------------------------------------------------------------------------
 SVID_CPP="$ROOT/Source/storm/storm_svid.cpp"
 awk '
-BEGIN { in_blit = 0 }
 {
     sub(/\r$/, "", $0)
 
-    if ($0 == "bool BlitFrame()") {
-        in_blit = 1
-        print
-        next
-    }
-
-    if (in_blit && $0 == "\tif (renderer != nullptr) {") {
-        print
-
-        getline l1; sub(/\r$/, "", l1)
+    if (index($0, "SDL_BlitSurface(SVidSurface.get(), nullptr, GetOutputSurface(), nullptr)") != 0) {
+        original_if = $0
         getline l2; sub(/\r$/, "", l2)
         getline l3; sub(/\r$/, "", l3)
         getline l4; sub(/\r$/, "", l4)
 
-        if (index(l1, "SDL_BlitSurface(SVidSurface.get(), nullptr, GetOutputSurface(), nullptr)") == 0)
-            exit 61
         if (index(l2, "Log(\"{}\", SDL_GetError());") == 0)
-            exit 62
+            exit 61
         if (index(l3, "return false;") == 0 || l4 != "\t\t}")
-            exit 63
+            exit 62
 
         print "#ifdef PSP"
         print "\t\tSDL_Surface *outputSurface = GetOutputSurface();"
@@ -62,7 +51,7 @@ BEGIN { in_blit = 0 }
         print "\t\t\treturn false;"
         print "\t\t}"
         print "#else"
-        print l1
+        print original_if
         print l2
         print l3
         print l4
@@ -75,7 +64,7 @@ BEGIN { in_blit = 0 }
 }
 END {
     if (movie_block != 1)
-        exit 64
+        exit 63
 }
 ' "$SVID_CPP" > "$SVID_CPP.tmp"
 mv "$SVID_CPP.tmp" "$SVID_CPP"
