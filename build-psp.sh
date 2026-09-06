@@ -4,7 +4,8 @@ set -x
 
 command -v psp-gcc
 command -v psp-cmake
-command -v python3
+command -v awk
+command -v sed
 
 rm -rf source build package
 
@@ -14,7 +15,7 @@ git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
 # vanilla UI is 640x480 and code paths below 480p can crop or crash. Keep the
 # logical UI at 640x480 and split the final PSP GPU upload into two textures so
 # neither exceeds the PSP backend's 512x512 texture limit.
-python3 patch-psp-video.py
+bash patch-psp-video.sh source
 
 # Match the PSP fork's own build path. Without host smpq, DevilutionX copies its
 # runtime UI/font/data files into build/assets and loads them directly at runtime.
