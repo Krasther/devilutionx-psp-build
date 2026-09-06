@@ -38,6 +38,11 @@ bash patch-psp-runtime-trace.sh source
 # with the relative path retained only as a fallback.
 bash patch-psp-log-path.sh source
 
+# Trace the level-loading path on real hardware. In particular, log every major
+# stage of WM_DIABPREVLVL (Cathedral -> Tristram) plus PSP free-memory figures so
+# a hard exit can be pinned to the exact allocation/load step.
+bash patch-psp-transition-trace.sh source
+
 # Match the PSP fork's own build path. Without host smpq, DevilutionX copies its
 # runtime UI/font/data files into build/assets and loads them directly at runtime.
 # Keep PSPDEV's packaged libraries except for fmt: the current PSPDEV image ships
