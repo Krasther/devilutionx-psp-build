@@ -17,9 +17,10 @@ git clone --branch psp https://github.com/dports/DevilutionX-PSP.git source
 # frame to a native 480x272 PSP output surface before uploading it to the GPU.
 bash patch-psp-video.sh source
 
-# Diagnostic: bypass startup/attract movies so menu and gameplay can be tested
-# independently from the still-problematic PSP Smacker video transition path.
-bash patch-psp-skip-startup-videos.sh source
+# Keep the normal Blizzard -> Diablo intro -> title -> main menu flow intact,
+# but add a crash-safe trace file (devilutionx.log) so we can see exactly where
+# the PSP/PPSSPP path repeats or stops.
+bash patch-psp-runtime-trace.sh source
 
 # Match the PSP fork's own build path. Without host smpq, DevilutionX copies its
 # runtime UI/font/data files into build/assets and loads them directly at runtime.
@@ -66,6 +67,9 @@ EOF
 
 printf 'Coloque seu DIABDAT.MPQ nesta pasta antes de copiar para PSP/GAME/DevilutionX/\n' \
   > package/DevilutionX/COLOQUE_O_DIABDAT_AQUI.txt
+
+printf 'Este build gera devilutionx.log na pasta do jogo. Reproduza o problema e envie esse arquivo.\n' \
+  > package/DevilutionX/LEIA_LOG_DIAGNOSTICO.txt
 
 echo "=== Conteudo final do pacote ==="
 find package -maxdepth 5 -type f -print
